@@ -1,4 +1,6 @@
 # Вычислитель отличий
+![Node.js CI](https://github.com/romanzemerov/frontend-project-lvl2/workflows/Node.js%20CI/badge.svg) 
+[![Maintainability](https://api.codeclimate.com/v1/badges/65cf79e09080d2dc9c1c/maintainability)](https://codeclimate.com/github/romanzemerov/frontend-project-lvl2/maintainability)
 
 ## Установка
 
