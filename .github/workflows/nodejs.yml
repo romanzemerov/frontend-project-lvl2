@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [13.x]
+        node-version: [14.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -24,5 +24,12 @@ jobs:
         run: make install
       - name: Linting files
         run: make lint
+      - name: Linting files
+        run: make lint
+      - name: Test & publish code coverage
+        uses: paambaati/codeclimate-action@v2.6.0
+        with:
+          coverageCommand: make test-coverage
+          debug: true
         env:
-          CI: true
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
