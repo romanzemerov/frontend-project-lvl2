@@ -1,4 +1,3 @@
-import fs from 'fs';
 import { test, expect, describe, beforeAll } from '@jest/globals';
 import genDiff from '../src/index.js';
 
@@ -6,6 +5,8 @@ let beforeJSONPath;
 let afterJSONPath;
 let beforeYAMLPath;
 let afterYAMLPath;
+let beforeIniPath;
+let afterIniPath;
 let expectingResult;
 
 describe('Generate diffs', () => {
@@ -14,6 +15,8 @@ describe('Generate diffs', () => {
     afterJSONPath = './__fixtures__/after.json';
     beforeYAMLPath = `./__fixtures__/before.yml`;
     afterYAMLPath = './__fixtures__/after.yml';
+    beforeIniPath = `./__fixtures__/before.ini`;
+    afterIniPath = './__fixtures__/after.ini';
 
     expectingResult = `{\n${[
       '    host: hexlet.io',
@@ -30,5 +33,9 @@ describe('Generate diffs', () => {
 
   test("Generate diff with YAML's files", () => {
     expect(genDiff(beforeYAMLPath, afterYAMLPath)).toBe(expectingResult);
+  });
+
+  test("Generate diff with ini's files", () => {
+    expect(genDiff(beforeIniPath, afterIniPath)).toBe(expectingResult);
   });
 });
