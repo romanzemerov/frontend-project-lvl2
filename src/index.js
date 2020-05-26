@@ -1,6 +1,10 @@
 import union from 'lodash/union.js';
+import parsePath from './parsers';
 
-const genDiff = (firstFile, secondFile) => {
+const genDiff = (firstPath, secondPath) => {
+  const firstFile = parsePath(firstPath);
+  const secondFile = parsePath(secondPath);
+
   const firstFileKeys = Object.keys(firstFile);
   const secondFileKeys = Object.keys(secondFile);
 

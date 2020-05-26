@@ -2,14 +2,18 @@ import fs from 'fs';
 import { test, expect, describe, beforeAll } from '@jest/globals';
 import genDiff from '../src/index.js';
 
-let beforeJSON;
-let afterJSON;
+let beforeJSONPath;
+let afterJSONPath;
+let beforeYAMLPath;
+let afterYAMLPath;
 let expectingResult;
 
-describe('matching cities to foods', () => {
+describe('Generate diffs', () => {
   beforeAll(() => {
-    beforeJSON = JSON.parse(fs.readFileSync(`./__fixtures__/before.json`));
-    afterJSON = JSON.parse(fs.readFileSync('./__fixtures__/after.json'));
+    beforeJSONPath = `./__fixtures__/before.json`;
+    afterJSONPath = './__fixtures__/after.json';
+    beforeYAMLPath = `./__fixtures__/before.yml`;
+    afterYAMLPath = './__fixtures__/after.yml';
 
     expectingResult = `{\n${[
       '    host: hexlet.io',
@@ -20,7 +24,11 @@ describe('matching cities to foods', () => {
     ].join('\n')}\n}`;
   });
 
-  test('gendiff', () => {
-    expect(genDiff(beforeJSON, afterJSON)).toBe(expectingResult);
+  test("Generate diff with JSON's files", () => {
+    expect(genDiff(beforeJSONPath, afterJSONPath)).toBe(expectingResult);
+  });
+
+  test("Generate diff with YAML's files", () => {
+    expect(genDiff(beforeYAMLPath, afterYAMLPath)).toBe(expectingResult);
   });
 });

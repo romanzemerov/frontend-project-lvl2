@@ -3,6 +3,7 @@
 import fs from 'fs';
 import program from 'commander';
 import genDiff from '../src/index.js';
+import path from 'path';
 
 program
   .version('1.0.0')
@@ -10,9 +11,6 @@ program
   .arguments('<firstFile> <secondFile>')
   .option('-f, --format [type]', 'output format')
   .action((firstPath, secondPath) => {
-    const firstFile = JSON.parse(fs.readFileSync(firstPath));
-    const secondFile = JSON.parse(fs.readFileSync(secondPath));
-
-    console.log(genDiff(firstFile, secondFile));
+    console.log(genDiff(firstPath, secondPath));
   })
   .parse(process.argv);
