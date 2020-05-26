@@ -10,6 +10,9 @@ test:
 test-coverage:
 	npm test -- --coverage --coverageProvider=v8
 
+test-watch:
+	npx -n --experimental-vm-modules jest --watch
+
 pretty:
 	npx prettier --write src/**/*.js bin/**/*.js
 
