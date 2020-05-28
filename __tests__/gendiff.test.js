@@ -1,5 +1,9 @@
+import fs from 'fs';
 import { test, expect, describe, beforeAll } from '@jest/globals';
-import genDiff from '../src/index.js';
+import expectingTree from '../__fixtures__/expectingTree';
+import getDiff from '../src/diff-generator.js';
+import format from '../src/formatters';
+import genDiff from '../src';
 
 let beforeJSONPath;
 let afterJSONPath;
@@ -7,7 +11,6 @@ let beforeYAMLPath;
 let afterYAMLPath;
 let beforeIniPath;
 let afterIniPath;
-let expectingResult;
 
 describe('Generate diffs', () => {
   beforeAll(() => {
@@ -17,25 +20,32 @@ describe('Generate diffs', () => {
     afterYAMLPath = './__fixtures__/after.yml';
     beforeIniPath = `./__fixtures__/before.ini`;
     afterIniPath = './__fixtures__/after.ini';
-
-    expectingResult = `{\n${[
-      '    host: hexlet.io',
-      '  + timeout: 20\n  - timeout: 50',
-      '  - proxy: 123.234.53.22',
-      '  - follow: false',
-      '  + verbose: true',
-    ].join('\n')}\n}`;
   });
 
-  test("Generate diff with JSON's files", () => {
-    expect(genDiff(beforeJSONPath, afterJSONPath)).toBe(expectingResult);
+  test("Generate AST diff tree with JSON's files", () => {
+    expect(
+      getDiff(
+        JSON.parse(fs.readFileSync(beforeJSONPath, 'utf-8')),
+        JSON.parse(fs.readFileSync(afterJSONPath, 'utf-8')),
+      ),
+    ).toEqual(expectingTree);
+  });
+
+  test('Generate pretty string result of diff', () => {
+    expect(format('stylish', expectingTree)).toEqual(
+      fs.readFileSync('./__fixtures__/result-stylish.txt', 'utf-8'),
+    );
   });
 
   test("Generate diff with YAML's files", () => {
-    expect(genDiff(beforeYAMLPath, afterYAMLPath)).toBe(expectingResult);
+    expect(genDiff(beforeYAMLPath, afterYAMLPath, 'stylish')).toBe(
+      fs.readFileSync('./__fixtures__/result-stylish.txt', 'utf-8'),
+    );
   });
 
   test("Generate diff with ini's files", () => {
-    expect(genDiff(beforeIniPath, afterIniPath)).toBe(expectingResult);
+    expect(genDiff(beforeIniPath, afterIniPath, 'stylish')).toBe(
+      fs.readFileSync('./__fixtures__/result-stylish.txt', 'utf-8'),
+    );
   });
 });
