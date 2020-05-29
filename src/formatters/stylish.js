@@ -65,12 +65,4 @@ const formatStylish = (tree) => {
   return result.flat(Infinity).join('\n');
 };
 
-const format = (name, tree) => {
-  if (name === 'stylish') {
-    return formatStylish(tree);
-  }
-
-  throw new Error(`Incorrect formatter name - ${name}`);
-};
-
-export default format;
+export default formatStylish;
