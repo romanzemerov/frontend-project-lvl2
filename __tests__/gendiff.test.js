@@ -43,6 +43,12 @@ describe('Generate diffs', () => {
     );
   });
 
+  test('Generate JSON result of diff', () => {
+    expect(format('json', expectingTree)).toEqual(
+      fs.readFileSync('./__fixtures__/result-json.txt', 'utf-8'),
+    );
+  });
+
   test("Generate diff with YAML's files", () => {
     expect(genDiff(beforeYAMLPath, afterYAMLPath, 'stylish')).toBe(
       fs.readFileSync('./__fixtures__/result-stylish.txt', 'utf-8'),
