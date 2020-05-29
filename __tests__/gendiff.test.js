@@ -2,7 +2,7 @@ import fs from 'fs';
 import { test, expect, describe, beforeAll } from '@jest/globals';
 import expectingTree from '../__fixtures__/expectingTree';
 import getDiff from '../src/diff-generator.js';
-import format from '../src/formatters';
+import format from '../src/formatters/index.js';
 import genDiff from '../src';
 
 let beforeJSONPath;
@@ -34,6 +34,12 @@ describe('Generate diffs', () => {
   test('Generate pretty string result of diff', () => {
     expect(format('stylish', expectingTree)).toEqual(
       fs.readFileSync('./__fixtures__/result-stylish.txt', 'utf-8'),
+    );
+  });
+
+  test('Generate plain string result of diff', () => {
+    expect(format('plain', expectingTree)).toEqual(
+      fs.readFileSync('./__fixtures__/result-plain.txt', 'utf-8'),
     );
   });
 
