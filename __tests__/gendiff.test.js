@@ -1,63 +1,33 @@
 import fs from 'fs';
-import { test, expect, describe, beforeAll } from '@jest/globals';
-import expectingTree from '../__fixtures__/expectingTree';
-import getDiff from '../src/diff-generator.js';
-import format from '../src/formatters/index.js';
+import path from 'path';
+import { test, expect, describe } from '@jest/globals';
 import genDiff from '../src';
 
-let beforeJSONPath;
-let afterJSONPath;
-let beforeYAMLPath;
-let afterYAMLPath;
-let beforeIniPath;
-let afterIniPath;
+const getFixturesPath = (fixtureName) =>
+  path.join(process.cwd(), '__fixtures__/', fixtureName);
 
-describe('Generate diffs', () => {
-  beforeAll(() => {
-    beforeJSONPath = `./__fixtures__/before.json`;
-    afterJSONPath = './__fixtures__/after.json';
-    beforeYAMLPath = `./__fixtures__/before.yml`;
-    afterYAMLPath = './__fixtures__/after.yml';
-    beforeIniPath = `./__fixtures__/before.ini`;
-    afterIniPath = './__fixtures__/after.ini';
-  });
+const formats = ['stylish', 'plain', 'json'];
+const extensions = ['json', 'yml', 'ini'];
 
-  test("Generate AST diff tree with JSON's files", () => {
-    expect(
-      getDiff(
-        JSON.parse(fs.readFileSync(beforeJSONPath, 'utf-8')),
-        JSON.parse(fs.readFileSync(afterJSONPath, 'utf-8')),
-      ),
-    ).toEqual(expectingTree);
-  });
+const testMatrix = formats.map((diffFormat, i) => {
+  const extension = extensions[i];
+  const beforeFileName = `before.${extension}`;
+  const afterFileName = `after.${extension}`;
+  const beforePath = `${getFixturesPath(beforeFileName)}`;
+  const afterPath = `${getFixturesPath(afterFileName)}`;
+  const resultFile = `result-${diffFormat}.txt`;
+  const expectingResult = `${getFixturesPath(resultFile)}`;
 
-  test('Generate pretty string result of diff', () => {
-    expect(format('stylish', expectingTree)).toEqual(
-      fs.readFileSync('./__fixtures__/result-stylish.txt', 'utf-8'),
-    );
-  });
-
-  test('Generate plain string result of diff', () => {
-    expect(format('plain', expectingTree)).toEqual(
-      fs.readFileSync('./__fixtures__/result-plain.txt', 'utf-8'),
-    );
-  });
-
-  test('Generate JSON result of diff', () => {
-    expect(format('json', expectingTree)).toEqual(
-      fs.readFileSync('./__fixtures__/result-json.txt', 'utf-8'),
-    );
-  });
-
-  test("Generate diff with YAML's files", () => {
-    expect(genDiff(beforeYAMLPath, afterYAMLPath, 'stylish')).toBe(
-      fs.readFileSync('./__fixtures__/result-stylish.txt', 'utf-8'),
-    );
-  });
-
-  test("Generate diff with ini's files", () => {
-    expect(genDiff(beforeIniPath, afterIniPath, 'stylish')).toBe(
-      fs.readFileSync('./__fixtures__/result-stylish.txt', 'utf-8'),
-    );
-  });
+  return [beforePath, afterPath, diffFormat, expectingResult, extension];
 });
+
+describe.each(testMatrix)(
+  'Generate diffs',
+  (before, after, diffFormat, expected, extension) => {
+    test(`Generate ${diffFormat} diff with ${extension} files`, () => {
+      expect(genDiff(before, after, diffFormat)).toEqual(
+        fs.readFileSync(expected, 'utf-8'),
+      );
+    });
+  },
+);
