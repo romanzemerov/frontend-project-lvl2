@@ -5,15 +5,13 @@ const stringify = (object, sign, indent) => {
     sign === '+' || sign === ' ' ? object.value : object.beforeValue;
 
   if (_.isPlainObject(objectValue)) {
-    let result = [`${indent}${sign} ${object.name}: {`];
-
-    result = result.concat(
-      Object.entries(objectValue).map(
-        ([key, value]) => `${indent}      ${key}: ${value}`,
-      ),
+    const firstString = [`${indent}${sign} ${object.name}: {`];
+    const restStrings = Object.entries(objectValue).map(
+      ([key, value]) => `${indent}      ${key}: ${value}`,
     );
+    const lastString = `${indent}  }`;
 
-    return [...result, `${indent}  }`];
+    return [firstString, ...restStrings, lastString];
   }
 
   return `${indent}${sign} ${object.name}: ${objectValue}`;
@@ -21,6 +19,7 @@ const stringify = (object, sign, indent) => {
 
 const formatStylish = (tree) => {
   const indentSymbol = '  ';
+  const indentStep = 2;
 
   const iter = (currentTree, indentCount) => {
     return currentTree.reduce((acc, obj) => {
@@ -30,7 +29,7 @@ const formatStylish = (tree) => {
         return [
           ...acc,
           `${indent}  ${obj.name}: {`,
-          iter(obj.value, indentCount + 2),
+          iter(obj.value, indentCount + indentStep),
           `${indent}  }`,
         ];
       }
@@ -53,7 +52,7 @@ const formatStylish = (tree) => {
           ];
         }
         default: {
-          throw new Error(`Incorrect obj[status] value - ${obj.status}`);
+          throw new Error(`Unknown object status value - '${obj.status}'`);
         }
       }
     }, []);

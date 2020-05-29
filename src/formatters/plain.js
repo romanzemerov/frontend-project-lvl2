@@ -1,38 +1,42 @@
 import _ from 'lodash';
 
-const normalize = (value) => {
+const getObjectPath = (objectName, currentPath) => {
+  return currentPath === '' ? `${objectName}` : `${currentPath}.${objectName}`;
+};
+
+const stringify = (value) => {
   if (typeof value === 'string') {
     return `'${value}'`;
   }
 
   if (_.isPlainObject(value)) {
-    return '[comlex value]';
+    return '[complex value]';
   }
 
   return value;
 };
 
-const getPlainText = (obj, path) => {
-  const pathToObject = path === '' ? `${obj.name}` : `${path}.${obj.name}`;
+const getString = (obj, path) => {
+  const objectPath = getObjectPath(obj.name, path);
 
   switch (obj.status) {
     case 'unchanged': {
-      return `Property '${pathToObject}' unchanged`;
+      return `Property '${objectPath}' unchanged`;
     }
     case 'added': {
-      const objectValue = normalize(obj.value);
-      return `Property '${pathToObject}' was added with value: ${objectValue}`;
+      const objectValue = stringify(obj.value);
+      return `Property '${objectPath}' was added with value: ${objectValue}`;
     }
     case 'deleted': {
-      return `Property '${pathToObject}' was deleted`;
+      return `Property '${objectPath}' was deleted`;
     }
     case 'modified': {
-      const objectValue = normalize(obj.value);
-      const objectBeforeValue = normalize(obj.beforeValue);
-      return `Property '${pathToObject}' was changed from ${objectBeforeValue} to ${objectValue}`;
+      const objectValue = stringify(obj.value);
+      const objectBeforeValue = stringify(obj.beforeValue);
+      return `Property '${objectPath}' was changed from ${objectBeforeValue} to ${objectValue}`;
     }
     default: {
-      throw new Error(`Incorrect obj[status] value - ${obj.status}`);
+      throw new Error(`Unknown object status value - '${obj.status}'`);
     }
   }
 };
@@ -41,11 +45,12 @@ const formatPlain = (tree) => {
   const iter = (currentTree, path) => {
     return currentTree.reduce((acc, obj) => {
       if (Array.isArray(obj.value)) {
-        const newPath = path === '' ? `${obj.name}` : `${path}.${obj.name}`;
+        const newPath = getObjectPath(obj.name, path);
+
         return [...acc, iter(obj.value, newPath)];
       }
 
-      return [...acc, getPlainText(obj, path)];
+      return [...acc, getString(obj, path)];
     }, []);
   };
 

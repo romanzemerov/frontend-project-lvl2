@@ -3,9 +3,9 @@ import _ from 'lodash';
 const getDiff = (firstObject, secondObject) => {
   const firstObjectKeys = Object.keys(firstObject);
   const secondObjectKeys = Object.keys(secondObject);
-  const unionKeys = _.union(firstObjectKeys, secondObjectKeys).sort();
+  const combinedKeys = _.union(firstObjectKeys, secondObjectKeys).sort();
 
-  return unionKeys.reduce((acc, key) => {
+  return combinedKeys.reduce((acc, key) => {
     if (
       _.isPlainObject(firstObject[key]) &&
       _.isPlainObject(secondObject[key])
