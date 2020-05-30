@@ -1,56 +1,66 @@
 import _ from 'lodash';
 
-const getDiff = (firstObject, secondObject) => {
+export const NODE_TYPES = {
+  UNCHANGED: 'unchanged',
+  ADDED: 'added',
+  DELETED: 'deleted',
+  MODIFIED: 'modified',
+  COMPLEX: 'complex',
+};
+
+export const getDiffTree = (firstObject, secondObject) => {
   const firstObjectKeys = Object.keys(firstObject);
   const secondObjectKeys = Object.keys(secondObject);
   const combinedKeys = _.union(firstObjectKeys, secondObjectKeys).sort();
 
-  return combinedKeys.reduce((acc, key) => {
+  return combinedKeys.reduce((tree, key) => {
     if (
       _.isPlainObject(firstObject[key]) &&
       _.isPlainObject(secondObject[key])
     ) {
       return [
-        ...acc,
+        ...tree,
         {
-          name: key,
-          value: getDiff(firstObject[key], secondObject[key]),
+          key,
+          children: getDiffTree(firstObject[key], secondObject[key]),
+          type: NODE_TYPES.COMPLEX,
         },
       ];
     }
 
     if (!firstObjectKeys.includes(key)) {
-      return [...acc, { name: key, value: secondObject[key], status: 'added' }];
+      return [
+        ...tree,
+        { key, value: secondObject[key], type: NODE_TYPES.ADDED },
+      ];
     }
 
     if (!secondObjectKeys.includes(key)) {
       return [
-        ...acc,
-        { name: key, beforeValue: firstObject[key], status: 'deleted' },
+        ...tree,
+        { key, beforeValue: firstObject[key], type: NODE_TYPES.DELETED },
       ];
     }
 
     if (firstObject[key] !== secondObject[key]) {
       return [
-        ...acc,
+        ...tree,
         {
-          name: key,
+          key,
           beforeValue: firstObject[key],
           value: secondObject[key],
-          status: 'modified',
+          type: NODE_TYPES.MODIFIED,
         },
       ];
     }
 
     return [
-      ...acc,
+      ...tree,
       {
-        name: key,
+        key,
         value: firstObject[key],
-        status: 'unchanged',
+        type: NODE_TYPES.UNCHANGED,
       },
     ];
   }, []);
 };
-
-export default getDiff;
