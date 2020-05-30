@@ -1,54 +1,57 @@
 const expectingTree = [
   {
-    name: 'common',
-    value: [
-      { name: 'follow', value: false, status: 'added' },
-      { name: 'setting1', value: 'Value 1', status: 'unchanged' },
-      { name: 'setting2', beforeValue: 200, status: 'deleted' },
+    key: 'common',
+    children: [
+      { key: 'follow', value: false, type: 'added' },
+      { key: 'setting1', value: 'Value 1', type: 'unchanged' },
+      { key: 'setting2', beforeValue: 200, type: 'deleted' },
       {
-        name: 'setting3',
+        key: 'setting3',
         beforeValue: true,
         value: { key: 'value' },
-        status: 'modified',
+        type: 'modified',
       },
-      { name: 'setting4', value: 'blah blah', status: 'added' },
-      { name: 'setting5', value: { key5: 'value5' }, status: 'added' },
+      { key: 'setting4', value: 'blah blah', type: 'added' },
+      { key: 'setting5', value: { key5: 'value5' }, type: 'added' },
       {
-        name: 'setting6',
-        value: [
-          { name: 'key', value: 'value', status: 'unchanged' },
-          { name: 'ops', value: 'vops', status: 'added' },
+        key: 'setting6',
+        children: [
+          { key: 'key', value: 'value', type: 'unchanged' },
+          { key: 'ops', value: 'vops', type: 'added' },
         ],
+        type: 'complex',
       },
     ],
+    type: 'complex',
   },
   {
-    name: 'group1',
-    value: [
+    key: 'group1',
+    children: [
       {
-        name: 'baz',
+        key: 'baz',
         beforeValue: 'bas',
         value: 'bars',
-        status: 'modified',
+        type: 'modified',
       },
-      { name: 'foo', value: 'bar', status: 'unchanged' },
+      { key: 'foo', value: 'bar', type: 'unchanged' },
       {
-        name: 'nest',
+        key: 'nest',
         beforeValue: { key: 'value' },
         value: 'str',
-        status: 'modified',
+        type: 'modified',
       },
     ],
+    type: 'complex',
   },
   {
-    name: 'group2',
+    key: 'group2',
     beforeValue: { abc: 12345 },
-    status: 'deleted',
+    type: 'deleted',
   },
   {
-    name: 'group3',
+    key: 'group3',
     value: { fee: 100500 },
-    status: 'added',
+    type: 'added',
   },
 ];
 
