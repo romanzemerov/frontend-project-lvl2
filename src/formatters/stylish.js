@@ -1,11 +1,15 @@
 import _ from 'lodash';
+import { NODE_TYPES } from '../diff-tree-generator';
+
+const indentSymbol = '  ';
+const indentStep = 2;
 
 const stringify = (object, sign, indent) => {
   const objectValue =
     sign === '+' || sign === ' ' ? object.value : object.beforeValue;
 
   if (_.isPlainObject(objectValue)) {
-    const firstString = [`${indent}${sign} ${object.name}: {`];
+    const firstString = [`${indent}${sign} ${object.key}: {`];
     const restStrings = Object.entries(objectValue).map(
       ([key, value]) => `${indent}      ${key}: ${value}`,
     );
@@ -14,54 +18,37 @@ const stringify = (object, sign, indent) => {
     return [firstString, ...restStrings, lastString];
   }
 
-  return `${indent}${sign} ${object.name}: ${objectValue}`;
+  return `${indent}${sign} ${object.key}: ${objectValue}`;
 };
 
-const formatStylish = (tree) => {
-  const indentSymbol = '  ';
-  const indentStep = 2;
+const formatStylish = (tree, indentCount) =>
+  tree.reduce((acc, obj) => {
+    const indent = indentSymbol.repeat(indentCount);
 
-  const iter = (currentTree, indentCount) => {
-    return currentTree.reduce((acc, obj) => {
-      const indent = indentSymbol.repeat(indentCount);
-
-      if (Array.isArray(obj.value)) {
+    switch (obj.type) {
+      case NODE_TYPES.COMPLEX:
         return [
           ...acc,
-          `${indent}  ${obj.name}: {`,
-          iter(obj.value, indentCount + indentStep),
+          `${indent}  ${obj.key}: {`,
+          formatStylish(obj.children, indentCount + indentStep),
           `${indent}  }`,
         ];
-      }
+      case NODE_TYPES.UNCHANGED:
+        return [...acc, stringify(obj, ' ', indent)];
+      case NODE_TYPES.ADDED:
+        return [...acc, stringify(obj, '+', indent)];
+      case NODE_TYPES.DELETED:
+        return [...acc, stringify(obj, '-', indent)];
+      case NODE_TYPES.MODIFIED:
+        return [
+          ...acc,
+          stringify(obj, '-', indent),
+          stringify(obj, '+', indent),
+        ];
+      default:
+        throw new Error(`Unknown object status value - '${obj.type}'`);
+    }
+  }, []);
 
-      switch (obj.status) {
-        case 'unchanged': {
-          return [...acc, stringify(obj, ' ', indent)];
-        }
-        case 'added': {
-          return [...acc, stringify(obj, '+', indent)];
-        }
-        case 'deleted': {
-          return [...acc, stringify(obj, '-', indent)];
-        }
-        case 'modified': {
-          return [
-            ...acc,
-            stringify(obj, '-', indent),
-            stringify(obj, '+', indent),
-          ];
-        }
-        default: {
-          throw new Error(`Unknown object status value - '${obj.status}'`);
-        }
-      }
-    }, []);
-  };
-
-  let result = iter(tree, 1);
-  result = ['{', ...result, '}'];
-
-  return result.flat(Infinity).join('\n');
-};
-
-export default formatStylish;
+export default (tree) =>
+  `{\n${formatStylish(tree, 1).flat(Infinity).join('\n')}\n}`;
