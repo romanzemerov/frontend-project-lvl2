@@ -1,54 +1,70 @@
 import _ from 'lodash';
 import { NODE_TYPES } from '../diff-tree-generator';
 
-const indentSymbol = '  ';
-const indentStep = 2;
+const DEFAULT_NESTING_LEVEL = 1;
+const INDENT_SYMBOL = '  ';
+const INDENT_STEP = 2;
 
-const stringify = (object, sign, indent) => {
-  const objectValue =
-    sign === '+' || sign === ' ' ? object.value : object.beforeValue;
-
-  if (_.isPlainObject(objectValue)) {
-    const firstString = [`${indent}${sign} ${object.key}: {`];
-    const restStrings = Object.entries(objectValue).map(
-      ([key, value]) => `${indent}      ${key}: ${value}`,
-    );
-    const lastString = `${indent}  }`;
-
-    return [firstString, ...restStrings, lastString];
-  }
-
-  return `${indent}${sign} ${object.key}: ${objectValue}`;
+const getIndent = (nestingLevel) => {
+  return INDENT_SYMBOL.repeat(nestingLevel);
 };
 
-const formatStylish = (tree, indentCount) =>
-  tree.reduce((acc, obj) => {
-    const indent = indentSymbol.repeat(indentCount);
+const stringify = (key, value, nestingLevel) => {
+  const indent = getIndent(nestingLevel + DEFAULT_NESTING_LEVEL);
 
-    switch (obj.type) {
+  if (_.isPlainObject(value)) {
+    const nestingIndent = getIndent(
+      nestingLevel + INDENT_STEP + DEFAULT_NESTING_LEVEL,
+    );
+    const restStrings = Object.entries(value)
+      .map(([objKey, objValue]) => `${nestingIndent}${objKey}: ${objValue}`)
+      .join('/n');
+
+    return `${key}: {\n${restStrings}\n${indent}}`;
+  }
+
+  return `${key}: ${value}`;
+};
+
+const formatStylish = (tree, nestingLevel) =>
+  tree.reduce((currentTree, { key, type, beforeValue, value, children }) => {
+    const indent = getIndent(nestingLevel);
+
+    switch (type) {
       case NODE_TYPES.COMPLEX:
         return [
-          ...acc,
-          `${indent}  ${obj.key}: {`,
-          formatStylish(obj.children, indentCount + indentStep),
+          ...currentTree,
+          `${indent}  ${key}: {`,
+          formatStylish(children, nestingLevel + INDENT_STEP),
           `${indent}  }`,
         ];
       case NODE_TYPES.UNCHANGED:
-        return [...acc, stringify(obj, ' ', indent)];
+        return [
+          ...currentTree,
+          `${indent}  ${stringify(key, value, nestingLevel)}`,
+        ];
       case NODE_TYPES.ADDED:
-        return [...acc, stringify(obj, '+', indent)];
+        return [
+          ...currentTree,
+          `${indent}+ ${stringify(key, value, nestingLevel)}`,
+        ];
       case NODE_TYPES.DELETED:
-        return [...acc, stringify(obj, '-', indent)];
+        return [
+          ...currentTree,
+          `${indent}- ${stringify(key, beforeValue, nestingLevel)}`,
+        ];
       case NODE_TYPES.MODIFIED:
         return [
-          ...acc,
-          stringify(obj, '-', indent),
-          stringify(obj, '+', indent),
+          ...currentTree,
+          `${indent}- ${stringify(key, beforeValue, nestingLevel)}`,
+          `${indent}+ ${stringify(key, value, nestingLevel)}`,
         ];
       default:
-        throw new Error(`Unknown object status value - '${obj.type}'`);
+        throw new Error(`Unknown object status value - '${type}'`);
     }
   }, []);
 
 export default (tree) =>
-  `{\n${formatStylish(tree, 1).flat(Infinity).join('\n')}\n}`;
+  `{\n${formatStylish(tree, DEFAULT_NESTING_LEVEL)
+    .flat(Infinity)
+    .join('\n')}\n}`;
