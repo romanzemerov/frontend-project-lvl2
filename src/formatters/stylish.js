@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { NODE_TYPES } from '../diff-tree-generator';
+import { NODE_TYPES } from '../diff-tree-generator.js';
 
 const DEFAULT_NESTING_LEVEL = 1;
 const INDENT_SYMBOL = '  ';
