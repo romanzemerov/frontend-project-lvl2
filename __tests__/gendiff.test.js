@@ -3,29 +3,36 @@ import path from 'path';
 import { test, expect, describe } from '@jest/globals';
 import genDiff from '../src';
 
+const FORMATS_LIST = ['stylish', 'plain', 'json'];
+const EXTENSIONS_LIST = ['json', 'yml', 'ini'];
+
 const getFixturesPath = (fixtureName) =>
-  path.join(process.cwd(), '__fixtures__/', fixtureName);
+  path.join(process.cwd(), '__tests__/__fixtures__/', fixtureName);
 
-const formats = ['stylish', 'plain', 'json'];
-const extensions = ['json', 'yml', 'ini'];
+const getPath = (name, extension) => getFixturesPath(`${name}.${extension}`);
 
-const testMatrix = formats.map((diffFormat, i) => {
-  const extension = extensions[i];
-  const beforeFileName = `before.${extension}`;
-  const afterFileName = `after.${extension}`;
-  const beforePath = `${getFixturesPath(beforeFileName)}`;
-  const afterPath = `${getFixturesPath(afterFileName)}`;
-  const resultFile = `result-${diffFormat}.txt`;
-  const expectingResult = `${getFixturesPath(resultFile)}`;
+const getTestsData = (formats, extensions) => {
+  const filesPathArrays = extensions.reduce((acc, extension) => {
+    const beforeFilePath = getPath('before', extension);
+    const afterFilePath = getPath('after', extension);
 
-  return [beforePath, afterPath, diffFormat, expectingResult, extension];
-});
+    return [...acc, [beforeFilePath, afterFilePath]];
+  }, []);
 
-describe.each(testMatrix)(
-  'Generate diffs',
-  (before, after, diffFormat, expected, extension) => {
-    test(`Generate ${diffFormat} diff with ${extension} files`, () => {
-      expect(genDiff(before, after, diffFormat)).toEqual(
+  return filesPathArrays.map((array, index) => {
+    const formatter = formats[index];
+    const resultFile = `result-${formatter}.txt`;
+    const resultFilePath = `${getFixturesPath(resultFile)}`;
+
+    return [...array, formatter, resultFilePath];
+  });
+};
+
+describe.each(getTestsData(FORMATS_LIST, EXTENSIONS_LIST))(
+  'Render diffs',
+  (before, after, formatter, expected) => {
+    test(`Render diff with ${formatter} formatter`, () => {
+      expect(genDiff(before, after, formatter)).toEqual(
         fs.readFileSync(expected, 'utf-8'),
       );
     });
