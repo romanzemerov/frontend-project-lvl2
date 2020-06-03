@@ -11,26 +11,22 @@ const getFixturesPath = (fixtureName) =>
 
 const getPath = (name, extension) => getFixturesPath(`${name}.${extension}`);
 
-const getTestsData = (formats, extensions) => {
-  const filesPathArrays = extensions.reduce((acc, extension) => {
-    const beforeFilePath = getPath('before', extension);
-    const afterFilePath = getPath('after', extension);
-
-    return [...acc, [beforeFilePath, afterFilePath]];
-  }, []);
-
-  return filesPathArrays.map((array, index) => {
+const getTestsData = (formats, extensions) =>
+  extensions.map((extension, index) => {
     const formatter = formats[index];
     const resultFile = `result-${formatter}.txt`;
-    const resultFilePath = `${getFixturesPath(resultFile)}`;
 
-    return [...array, formatter, resultFilePath];
+    return [
+      getPath('before', extension),
+      getPath('after', extension),
+      getFixturesPath(resultFile),
+      formatter,
+    ];
   });
-};
 
 describe.each(getTestsData(FORMATS_LIST, EXTENSIONS_LIST))(
   'Render diffs',
-  (before, after, formatter, expected) => {
+  (before, after, expected, formatter) => {
     test(`Render diff with ${formatter} formatter`, () => {
       expect(genDiff(before, after, formatter)).toEqual(
         fs.readFileSync(expected, 'utf-8'),
