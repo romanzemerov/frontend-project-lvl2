@@ -15,16 +15,16 @@ const formatIni = (object) =>
     return { ...acc, [key]: value };
   }, {});
 
-const getParser = (extension) => {
-  switch (extension) {
-    case '.json':
-      return (file) => JSON.parse(file);
-    case '.yml':
-      return (file) => yaml.safeLoad(file);
-    case '.ini':
-      return (file) => formatIni(ini.parse(file));
+const getParser = (fileType) => {
+  switch (fileType) {
+    case 'json':
+      return JSON.parse;
+    case 'yml':
+      return yaml.safeLoad;
+    case 'ini':
+      return _.flowRight(formatIni, ini.parse);
     default:
-      throw new Error(`Unknown file extension - '${extension}'`);
+      throw new Error(`Unknown file type - '${fileType}'`);
   }
 };
 

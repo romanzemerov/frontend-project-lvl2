@@ -6,9 +6,9 @@ import getFormatter from './formatters/index.js';
 
 const getObject = (pathName) => {
   const file = fs.readFileSync(pathName, 'utf-8');
-  const extension = path.extname(pathName);
+  const type = path.extname(pathName).slice(1);
 
-  return getParser(extension)(file);
+  return getParser(type)(file);
 };
 
 const genDiff = (firstPath, secondPath, formatType) => {
