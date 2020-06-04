@@ -8,59 +8,64 @@ export const NODE_TYPES = {
   COMPLEX: 'complex',
 };
 
+const NODE_MAPPERS = [
+  {
+    checker: (firstValue, secondValue) =>
+      _.isPlainObject(firstValue) && _.isPlainObject(secondValue),
+    getNode: (firstValue, secondValue, getDiffTree) => ({
+      children: getDiffTree(firstValue, secondValue),
+      type: NODE_TYPES.COMPLEX,
+    }),
+  },
+  {
+    checker: (firstValue, secondValue) =>
+      firstValue !== undefined && secondValue === undefined,
+    getNode: (firstValue) => ({
+      beforeValue: firstValue,
+      type: NODE_TYPES.DELETED,
+    }),
+  },
+  {
+    checker: (firstValue, secondValue) =>
+      firstValue === undefined && secondValue !== undefined,
+    getNode: (_firstValue, secondValue) => ({
+      value: secondValue,
+      type: NODE_TYPES.ADDED,
+    }),
+  },
+  {
+    checker: (firstValue, secondValue) => firstValue !== secondValue,
+    getNode: (firstValue, secondValue) => ({
+      beforeValue: firstValue,
+      value: secondValue,
+      type: NODE_TYPES.MODIFIED,
+    }),
+  },
+  {
+    checker: (firstValue, secondValue) => firstValue === secondValue,
+    getNode: (firstValue) => ({
+      value: firstValue,
+      type: NODE_TYPES.UNCHANGED,
+    }),
+  },
+];
+
 export const getDiffTree = (firstObject, secondObject) => {
   const firstObjectKeys = Object.keys(firstObject);
   const secondObjectKeys = Object.keys(secondObject);
   const combinedKeys = _.union(firstObjectKeys, secondObjectKeys).sort();
 
-  return combinedKeys.reduce((tree, key) => {
-    if (
-      _.isPlainObject(firstObject[key]) &&
-      _.isPlainObject(secondObject[key])
-    ) {
-      return [
-        ...tree,
-        {
-          key,
-          children: getDiffTree(firstObject[key], secondObject[key]),
-          type: NODE_TYPES.COMPLEX,
-        },
-      ];
-    }
+  return combinedKeys.map((key) => {
+    const firstObjectValue = firstObject[key];
+    const secondObjectValue = secondObject[key];
 
-    if (!firstObjectKeys.includes(key)) {
-      return [
-        ...tree,
-        { key, value: secondObject[key], type: NODE_TYPES.ADDED },
-      ];
-    }
+    const { getNode } = NODE_MAPPERS.find(({ checker }) =>
+      checker(firstObjectValue, secondObjectValue),
+    );
 
-    if (!secondObjectKeys.includes(key)) {
-      return [
-        ...tree,
-        { key, beforeValue: firstObject[key], type: NODE_TYPES.DELETED },
-      ];
-    }
-
-    if (firstObject[key] !== secondObject[key]) {
-      return [
-        ...tree,
-        {
-          key,
-          beforeValue: firstObject[key],
-          value: secondObject[key],
-          type: NODE_TYPES.MODIFIED,
-        },
-      ];
-    }
-
-    return [
-      ...tree,
-      {
-        key,
-        value: firstObject[key],
-        type: NODE_TYPES.UNCHANGED,
-      },
-    ];
-  }, []);
+    return {
+      key,
+      ...getNode(firstObjectValue, secondObjectValue, getDiffTree),
+    };
+  });
 };
