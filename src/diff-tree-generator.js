@@ -1,14 +1,7 @@
 import _ from 'lodash';
+import NODE_TYPES from './node-types.js';
 
-export const NODE_TYPES = {
-  UNCHANGED: 'unchanged',
-  ADDED: 'added',
-  DELETED: 'deleted',
-  MODIFIED: 'modified',
-  COMPLEX: 'complex',
-};
-
-const NODE_MAPPERS = [
+const nodeMappers = [
   {
     checker: (firstValue, secondValue) =>
       _.isPlainObject(firstValue) && _.isPlainObject(secondValue),
@@ -59,7 +52,7 @@ export const getDiffTree = (firstObject, secondObject) => {
     const firstObjectValue = firstObject[key];
     const secondObjectValue = secondObject[key];
 
-    const { getNode } = NODE_MAPPERS.find(({ checker }) =>
+    const { getNode } = nodeMappers.find(({ checker }) =>
       checker(firstObjectValue, secondObjectValue),
     );
 

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { NODE_TYPES } from '../diff-tree-generator.js';
+import NODE_TYPES from '../node-types.js';
 
 const getNodePath = (objectName, currentPath) =>
   currentPath === '' ? `${objectName}` : `${currentPath}.${objectName}`;
