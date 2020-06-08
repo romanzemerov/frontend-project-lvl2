@@ -3,7 +3,7 @@ import NODE_TYPES from './node-types.js';
 
 const nodeMappers = [
   {
-    checker: (firstValue, secondValue) =>
+    check: (firstValue, secondValue) =>
       _.isPlainObject(firstValue) && _.isPlainObject(secondValue),
     getNode: (firstValue, secondValue, getDiffTree) => ({
       children: getDiffTree(firstValue, secondValue),
@@ -11,7 +11,7 @@ const nodeMappers = [
     }),
   },
   {
-    checker: (firstValue, secondValue) =>
+    check: (firstValue, secondValue) =>
       firstValue !== undefined && secondValue === undefined,
     getNode: (firstValue) => ({
       beforeValue: firstValue,
@@ -19,7 +19,7 @@ const nodeMappers = [
     }),
   },
   {
-    checker: (firstValue, secondValue) =>
+    check: (firstValue, secondValue) =>
       firstValue === undefined && secondValue !== undefined,
     getNode: (_firstValue, secondValue) => ({
       value: secondValue,
@@ -27,7 +27,7 @@ const nodeMappers = [
     }),
   },
   {
-    checker: (firstValue, secondValue) => firstValue !== secondValue,
+    check: (firstValue, secondValue) => firstValue !== secondValue,
     getNode: (firstValue, secondValue) => ({
       beforeValue: firstValue,
       value: secondValue,
@@ -35,7 +35,7 @@ const nodeMappers = [
     }),
   },
   {
-    checker: (firstValue, secondValue) => firstValue === secondValue,
+    check: (firstValue, secondValue) => firstValue === secondValue,
     getNode: (firstValue) => ({
       value: firstValue,
       type: NODE_TYPES.UNCHANGED,
@@ -52,8 +52,8 @@ export const getDiffTree = (firstObject, secondObject) => {
     const firstObjectValue = firstObject[key];
     const secondObjectValue = secondObject[key];
 
-    const { getNode } = nodeMappers.find(({ checker }) =>
-      checker(firstObjectValue, secondObjectValue),
+    const { getNode } = nodeMappers.find(({ check }) =>
+      check(firstObjectValue, secondObjectValue),
     );
 
     return {
