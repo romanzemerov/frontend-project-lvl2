@@ -13,8 +13,12 @@ const stringify = (value) => {
   return value;
 };
 
-const getString = ({ key, type, beforeValue, value }, path) => {
-  const nodePath = `${path}${key}`;
+const getString = (
+  { key, type, beforeValue, value, children },
+  path,
+  format,
+) => {
+  let nodePath = `${path}${key}`;
   const convertedBeforeValue = stringify(beforeValue);
   const convertedValue = stringify(value);
 
@@ -27,20 +31,15 @@ const getString = ({ key, type, beforeValue, value }, path) => {
       return `Property '${nodePath}' was deleted`;
     case NODE_TYPES.MODIFIED:
       return `Property '${nodePath}' was changed from ${convertedBeforeValue} to ${convertedValue}`;
+    case NODE_TYPES.COMPLEX:
+      nodePath = `${nodePath}.`;
+      return format(children, nodePath);
     default:
       throw new Error(`Unknown object status value - '${type}'`);
   }
 };
 
 const formatPlain = (tree, path) =>
-  tree.map((node) => {
-    const { key, type, children } = node;
-
-    if (type === NODE_TYPES.COMPLEX) {
-      return formatPlain(children, `${path}${key}.`);
-    }
-
-    return getString(node, path);
-  });
+  tree.map((node) => getString(node, path, formatPlain));
 
 export default (tree) => formatPlain(tree, '').flat(Infinity).join('\n');
