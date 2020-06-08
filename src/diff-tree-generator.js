@@ -43,7 +43,7 @@ const nodeMappers = [
   },
 ];
 
-export const getDiffTree = (firstObject, secondObject) => {
+const getDiffTree = (firstObject, secondObject) => {
   const firstObjectKeys = Object.keys(firstObject);
   const secondObjectKeys = Object.keys(secondObject);
   const combinedKeys = _.union(firstObjectKeys, secondObjectKeys).sort();
@@ -62,3 +62,5 @@ export const getDiffTree = (firstObject, secondObject) => {
     };
   });
 };
+
+export default getDiffTree;

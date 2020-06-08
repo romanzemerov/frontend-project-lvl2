@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import getParser from './parsers.js';
-import { getDiffTree } from './diff-tree-generator.js';
+import getDiffTree from './diff-tree-generator.js';
 import getFormatter from './formatters/index.js';
 
 const getObject = (pathName) => {
