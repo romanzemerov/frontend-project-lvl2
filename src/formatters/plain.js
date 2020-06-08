@@ -1,30 +1,31 @@
 import _ from 'lodash';
 import NODE_TYPES from '../node-types.js';
 
-const getNodePath = (objectName, currentPath) =>
-  currentPath === '' ? `${objectName}` : `${currentPath}.${objectName}`;
-
 const stringify = (value) => {
-  if (typeof value === 'string') return `'${value}'`;
-  if (_.isPlainObject(value)) return '[complex value]';
+  if (_.isString(value)) {
+    return `'${value}'`;
+  }
+
+  if (_.isPlainObject(value)) {
+    return '[complex value]';
+  }
+
   return value;
 };
 
 const getString = ({ key, type, beforeValue, value }, path) => {
-  const nodePath = getNodePath(key, path);
-  const convertedBeforeValue = beforeValue
-    ? stringify(beforeValue)
-    : beforeValue;
-  const convertedValue = value ? stringify(value) : value;
+  const nodePath = `${path}${key}`;
+  const convertedBeforeValue = stringify(beforeValue);
+  const convertedValue = stringify(value);
 
   switch (type) {
-    case 'unchanged':
+    case NODE_TYPES.UNCHANGED:
       return `Property '${nodePath}' unchanged`;
-    case 'added':
+    case NODE_TYPES.ADDED:
       return `Property '${nodePath}' was added with value: ${convertedValue}`;
-    case 'deleted':
+    case NODE_TYPES.DELETED:
       return `Property '${nodePath}' was deleted`;
-    case 'modified':
+    case NODE_TYPES.MODIFIED:
       return `Property '${nodePath}' was changed from ${convertedBeforeValue} to ${convertedValue}`;
     default:
       throw new Error(`Unknown object status value - '${type}'`);
@@ -32,16 +33,14 @@ const getString = ({ key, type, beforeValue, value }, path) => {
 };
 
 const formatPlain = (tree, path) =>
-  tree.reduce((acc, node) => {
+  tree.map((node) => {
     const { key, type, children } = node;
 
     if (type === NODE_TYPES.COMPLEX) {
-      const newPath = getNodePath(key, path);
-
-      return [...acc, formatPlain(children, newPath)];
+      return formatPlain(children, `${path}${key}.`);
     }
 
-    return [...acc, getString(node, path)];
-  }, []);
+    return getString(node, path);
+  });
 
 export default (tree) => formatPlain(tree, '').flat(Infinity).join('\n');
