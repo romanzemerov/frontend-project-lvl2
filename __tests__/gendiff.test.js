@@ -11,26 +11,25 @@ const getFixturesPath = (fixtureName) =>
 
 const getPath = (name, extension) => getFixturesPath(`${name}.${extension}`);
 
-const getTestsData = (formats, extensions) =>
-  extensions.map((extension, index) => {
-    const formatter = formats[index];
-    const resultFile = `result-${formatter}.txt`;
+const getExtensionsData = (extensions) =>
+  extensions.map((extension) => [
+    extension,
+    getPath('before', extension),
+    getPath('after', extension),
+  ]);
 
-    return [
-      getPath('before', extension),
-      getPath('after', extension),
-      getFixturesPath(resultFile),
-      formatter,
-    ];
+const getExpectedResult = (formatter) =>
+  getFixturesPath(`result-${formatter}.txt`);
+
+describe('Render diffs', () => {
+  describe.each(FORMATS_LIST)('use %s formatter', (formatter) => {
+    test.each(getExtensionsData(EXTENSIONS_LIST))(
+      'works with %s extension',
+      (_, before, after) => {
+        expect(genDiff(before, after, formatter)).toEqual(
+          fs.readFileSync(getExpectedResult(formatter), 'utf-8'),
+        );
+      },
+    );
   });
-
-describe.each(getTestsData(FORMATS_LIST, EXTENSIONS_LIST))(
-  'Render diffs',
-  (before, after, expected, formatter) => {
-    test(`Render diff with ${formatter} formatter`, () => {
-      expect(genDiff(before, after, formatter)).toEqual(
-        fs.readFileSync(expected, 'utf-8'),
-      );
-    });
-  },
-);
+});
