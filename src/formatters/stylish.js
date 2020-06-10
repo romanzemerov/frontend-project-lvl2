@@ -9,9 +9,9 @@ const getIndent = (nestingLevel) => {
   return INDENT_SYMBOL.repeat(nestingLevel);
 };
 
-const stringify = (key, value, nestingLevel) => {
+const stringify = (value, nestingLevel) => {
   if (!_.isPlainObject(value)) {
-    return `${key}: ${value}`;
+    return value;
   }
 
   const indent = getIndent(nestingLevel + DEFAULT_NESTING_LEVEL);
@@ -22,7 +22,7 @@ const stringify = (key, value, nestingLevel) => {
     .map(([objKey, objValue]) => `${nestingIndent}${objKey}: ${objValue}`)
     .join('/n');
 
-  return `${key}: {\n${restStrings}\n${indent}}`;
+  return `{\n${restStrings}\n${indent}}`;
 };
 
 const formatStylish = (tree, nestingLevel) => {
@@ -37,15 +37,15 @@ const formatStylish = (tree, nestingLevel) => {
           `${indent}  }`,
         ];
       case NODE_TYPES.UNMODIFIED:
-        return `${indent}  ${stringify(key, value, nestingLevel)}`;
+        return `${indent}  ${key}: ${stringify(value, nestingLevel)}`;
       case NODE_TYPES.ADDED:
-        return `${indent}+ ${stringify(key, value, nestingLevel)}`;
+        return `${indent}+ ${key}: ${stringify(value, nestingLevel)}`;
       case NODE_TYPES.DELETED:
-        return `${indent}- ${stringify(key, beforeValue, nestingLevel)}`;
+        return `${indent}- ${key}: ${stringify(beforeValue, nestingLevel)}`;
       case NODE_TYPES.MODIFIED:
         return [
-          `${indent}- ${stringify(key, beforeValue, nestingLevel)}`,
-          `${indent}+ ${stringify(key, value, nestingLevel)}`,
+          `${indent}- ${key}: ${stringify(beforeValue, nestingLevel)}`,
+          `${indent}+ ${key}: ${stringify(value, nestingLevel)}`,
         ];
       default:
         throw new Error(`Unknown object status value - '${type}'`);
