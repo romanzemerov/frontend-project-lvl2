@@ -1,5 +1,5 @@
 const NODE_TYPES = {
-  UNCHANGED: 'unchanged',
+  UNMODIFIED: 'unmodified',
   ADDED: 'added',
   DELETED: 'deleted',
   MODIFIED: 'modified',

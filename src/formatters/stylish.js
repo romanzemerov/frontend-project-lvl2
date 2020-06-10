@@ -36,7 +36,7 @@ const formatStylish = (tree, nestingLevel) => {
           formatStylish(children, nestingLevel + INDENT_STEP),
           `${indent}  }`,
         ];
-      case NODE_TYPES.UNCHANGED:
+      case NODE_TYPES.UNMODIFIED:
         return `${indent}  ${stringify(key, value, nestingLevel)}`;
       case NODE_TYPES.ADDED:
         return `${indent}+ ${stringify(key, value, nestingLevel)}`;

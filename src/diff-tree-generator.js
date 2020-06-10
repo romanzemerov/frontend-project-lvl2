@@ -38,7 +38,7 @@ const nodeMappers = [
     check: (firstValue, secondValue) => firstValue === secondValue,
     getNode: (firstValue) => ({
       value: firstValue,
-      type: NODE_TYPES.UNCHANGED,
+      type: NODE_TYPES.UNMODIFIED,
     }),
   },
 ];

@@ -23,7 +23,7 @@ const getString = (
   const convertedValue = stringify(value);
 
   switch (type) {
-    case NODE_TYPES.UNCHANGED:
+    case NODE_TYPES.UNMODIFIED:
       return `Property '${nodePath}' unchanged`;
     case NODE_TYPES.ADDED:
       return `Property '${nodePath}' was added with value: ${convertedValue}`;
