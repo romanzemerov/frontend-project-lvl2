@@ -18,7 +18,7 @@ const getString = (
   path,
   format,
 ) => {
-  let nodePath = `${path}${key}`;
+  const nodePath = `${path}${key}`;
   const convertedBeforeValue = stringify(beforeValue);
   const convertedValue = stringify(value);
 
@@ -32,8 +32,7 @@ const getString = (
     case NODE_TYPES.MODIFIED:
       return `Property '${nodePath}' was changed from ${convertedBeforeValue} to ${convertedValue}`;
     case NODE_TYPES.COMPLEX:
-      nodePath = `${nodePath}.`;
-      return format(children, nodePath);
+      return format(children, `${nodePath}.`);
     default:
       throw new Error(`Unknown object status value - '${type}'`);
   }
