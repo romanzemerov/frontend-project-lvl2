@@ -26,31 +26,33 @@ const stringify = (value, nestingLevel) => {
 };
 
 const formatStylish = (tree, nestingLevel) => {
-  const result = tree.map(({ key, type, beforeValue, value, children }) => {
-    const indent = getIndent(nestingLevel);
+  const result = tree.map(
+    ({ key, type, beforeValue, afterValue, children }) => {
+      const indent = getIndent(nestingLevel);
 
-    switch (type) {
-      case NODE_TYPES.COMPLEX:
-        return [
-          `${indent}  ${key}: {`,
-          formatStylish(children, nestingLevel + INDENT_STEP),
-          `${indent}  }`,
-        ];
-      case NODE_TYPES.UNMODIFIED:
-        return `${indent}  ${key}: ${stringify(value, nestingLevel)}`;
-      case NODE_TYPES.ADDED:
-        return `${indent}+ ${key}: ${stringify(value, nestingLevel)}`;
-      case NODE_TYPES.DELETED:
-        return `${indent}- ${key}: ${stringify(beforeValue, nestingLevel)}`;
-      case NODE_TYPES.MODIFIED:
-        return [
-          `${indent}- ${key}: ${stringify(beforeValue, nestingLevel)}`,
-          `${indent}+ ${key}: ${stringify(value, nestingLevel)}`,
-        ];
-      default:
-        throw new Error(`Unknown object status value - '${type}'`);
-    }
-  });
+      switch (type) {
+        case NODE_TYPES.COMPLEX:
+          return [
+            `${indent}  ${key}: {`,
+            formatStylish(children, nestingLevel + INDENT_STEP),
+            `${indent}  }`,
+          ];
+        case NODE_TYPES.UNMODIFIED:
+          return `${indent}  ${key}: ${stringify(afterValue, nestingLevel)}`;
+        case NODE_TYPES.ADDED:
+          return `${indent}+ ${key}: ${stringify(afterValue, nestingLevel)}`;
+        case NODE_TYPES.DELETED:
+          return `${indent}- ${key}: ${stringify(beforeValue, nestingLevel)}`;
+        case NODE_TYPES.MODIFIED:
+          return [
+            `${indent}- ${key}: ${stringify(beforeValue, nestingLevel)}`,
+            `${indent}+ ${key}: ${stringify(afterValue, nestingLevel)}`,
+          ];
+        default:
+          throw new Error(`Unknown object status value - '${type}'`);
+      }
+    },
+  );
 
   return result.flat(Infinity).join('\n');
 };

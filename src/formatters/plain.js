@@ -14,13 +14,13 @@ const stringify = (value) => {
 };
 
 const getString = (
-  { key, type, beforeValue, value, children },
+  { key, type, beforeValue, afterValue, children },
   path,
   format,
 ) => {
   const nodePath = `${path}${key}`;
   const convertedBeforeValue = stringify(beforeValue);
-  const convertedValue = stringify(value);
+  const convertedValue = stringify(afterValue);
 
   switch (type) {
     case NODE_TYPES.UNMODIFIED:

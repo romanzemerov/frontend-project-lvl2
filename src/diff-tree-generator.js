@@ -22,7 +22,7 @@ const nodeMappers = [
     check: (firstValue, secondValue) =>
       firstValue === undefined && secondValue !== undefined,
     getNode: (_firstValue, secondValue) => ({
-      value: secondValue,
+      afterValue: secondValue,
       type: NODE_TYPES.ADDED,
     }),
   },
@@ -30,14 +30,14 @@ const nodeMappers = [
     check: (firstValue, secondValue) => firstValue !== secondValue,
     getNode: (firstValue, secondValue) => ({
       beforeValue: firstValue,
-      value: secondValue,
+      afterValue: secondValue,
       type: NODE_TYPES.MODIFIED,
     }),
   },
   {
     check: (firstValue, secondValue) => firstValue === secondValue,
     getNode: (firstValue) => ({
-      value: firstValue,
+      afterValue: firstValue,
       type: NODE_TYPES.UNMODIFIED,
     }),
   },
