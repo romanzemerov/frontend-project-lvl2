@@ -26,7 +26,7 @@ const stringify = (value, nestingLevel) => {
 };
 
 const formatStylish = (tree, nestingLevel) => {
-  const result = tree.map(
+  const result = tree.flatMap(
     ({ key, type, beforeValue, afterValue, children }) => {
       const indent = getIndent(nestingLevel);
 
@@ -54,7 +54,7 @@ const formatStylish = (tree, nestingLevel) => {
     },
   );
 
-  return result.flat(Infinity).join('\n');
+  return result.join('\n');
 };
 
 export default (tree) => `{\n${formatStylish(tree, DEFAULT_NESTING_LEVEL)}\n}`;
