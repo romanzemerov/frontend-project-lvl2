@@ -15,8 +15,8 @@ const formatIni = (object) =>
     return { ...acc, [key]: value };
   }, {});
 
-const getParser = (fileType) => {
-  switch (fileType) {
+const getParser = (type) => {
+  switch (type) {
     case 'json':
       return JSON.parse;
     case 'yml':
@@ -24,7 +24,7 @@ const getParser = (fileType) => {
     case 'ini':
       return _.flowRight(formatIni, ini.parse);
     default:
-      throw new Error(`Unknown file type - '${fileType}'`);
+      throw new Error(`Unknown type - '${type}'`);
   }
 };
 

@@ -39,9 +39,6 @@ const getString = (
 };
 
 const formatPlain = (tree, path) =>
-  tree
-    .map((node) => getString(node, path, formatPlain))
-    .flat(Infinity)
-    .join('\n');
+  tree.flatMap((node) => getString(node, path, formatPlain)).join('\n');
 
 export default (tree) => formatPlain(tree, '');
